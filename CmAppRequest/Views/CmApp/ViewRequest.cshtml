@@ -1,0 +1,41 @@
+﻿@model CmAppRequest.ViewModels.AppRequestViewModel
+
+@{
+    ViewBag.Title = "View Request: " + @Model.RequestGuid;
+}
+
+<h2>View Request: @Model.RequestGuid</h2>
+
+<table class="table">
+    <tr>
+        <th>Application</th>
+        <td>@Model.Application</td>
+    </tr>
+
+    <tr>
+        <th>Requested By</th>
+        <td>@Model.UserName</td>
+    </tr>
+
+    <tr>
+        <th>Last Modified Time</th>
+        <td>@Model.LastModifiedTime</td>
+    </tr>
+
+    <tr>
+        <th>Last Modified By</th>
+        <td>@Model.LastModifiedBy</td>
+    </tr>
+
+    <tr>
+        <th>Current State</th>
+        <td>@Model.CurrentState</td>
+    </tr>
+
+    <tr>
+        <th>Comments</th>
+        <td>@Model.Comments</td>
+    </tr>
+</table>
+
+<p><a href="/CmApp/Approve/?requestGuid=@Model.RequestGuid">Approve</a> | <a href="/CmApp/Deny/?requestGuid=@Model.RequestGuid">Deny</a></p>

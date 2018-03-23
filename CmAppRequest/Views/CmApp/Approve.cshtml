@@ -1,0 +1,24 @@
+﻿@model CmAppRequest.ViewModels.AppRequestViewModel
+
+@{
+    ViewBag.Title = "Approve: " + @Model.Application + "(" + Model.UserName + ")";
+}
+
+<h2>Approve: @Model.Application (@Model.UserName)</h2>
+
+<br />
+
+<form method="post" action="/CmApp/Approve/">
+    <div>
+        <p><label for="newComments">Approval Comments</label></p>
+        <textarea name="newComments" cols="40" rows="5"></textarea>
+    </div>
+
+    <br />
+
+    <div>
+        <input type="text" name="requestGuid" value="@Model.RequestGuid" hidden />
+        <input type="text" name="modUser" value="@Model.UserName" hidden />
+        <input type="submit" value="Approve" />
+    </div>
+</form>

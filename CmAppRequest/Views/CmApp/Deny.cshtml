@@ -1,0 +1,24 @@
+﻿@model CmAppRequest.ViewModels.AppRequestViewModel
+
+@{
+    ViewBag.Title = "Deny: " + @Model.Application + "(" + Model.UserName + ")";
+}
+
+<h2>Deny: @Model.Application (@Model.UserName)</h2>
+
+<br />
+
+<form method="post" action="/CmApp/Deny/">
+    <div>
+        <p><label for="newComments">Denial Comments</label></p>
+        <textarea name="newComments" cols="40" rows="5"></textarea>
+    </div>
+
+    <br />
+
+    <div>
+        <input type="text" name="requestGuid" value="@Model.RequestGuid" hidden />
+        <input type="text" name="modUser" value="@Model.UserName" hidden />
+        <input type="submit" value="Deny" />
+    </div>
+</form>
