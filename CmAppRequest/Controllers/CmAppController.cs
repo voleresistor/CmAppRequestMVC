@@ -12,6 +12,10 @@ namespace CmAppRequest.Controllers
     {
         static string siteServer = "housccm03.dxpe.com";
         static string nameSpace = "root\\SMS\\site_HOU";
+        // TODO: Add user based impersonation to allow for admins to be
+        // associated with approve/deny events they create
+        //ConnectionOptions connectOptions = new ConnectionOptions();
+
         ManagementScope myScope = new ManagementScope("\\\\" + siteServer + "\\" + nameSpace);
 
         // Create a viewmodel from the WMI query results
