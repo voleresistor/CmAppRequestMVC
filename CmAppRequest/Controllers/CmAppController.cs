@@ -14,9 +14,8 @@ namespace CmAppRequest.Controllers
         static string nameSpace = "root\\SMS\\site_HOU";
         // TODO: Add user based impersonation to allow for admins to be
         // associated with approve/deny events they create
-        //ConnectionOptions connectOptions = new ConnectionOptions();
-
-        ManagementScope myScope = new ManagementScope("\\\\" + siteServer + "\\" + nameSpace);
+        ManagementScope myScope = new ManagementScope("\\\\" + siteServer + "\\" + nameSpace,
+            new ConnectionOptions { Impersonation = System.Management.ImpersonationLevel.Impersonate });
 
         // Create a viewmodel from the WMI query results
         private AppRequestViewModel GetRequestData(ManagementObject m)
