@@ -20,8 +20,8 @@
     <UseIISExpress>true</UseIISExpress>
     <Use64BitIISExpress />
     <IISExpressSSLPort />
-    <IISExpressAnonymousAuthentication />
-    <IISExpressWindowsAuthentication />
+    <IISExpressAnonymousAuthentication>disabled</IISExpressAnonymousAuthentication>
+    <IISExpressWindowsAuthentication>enabled</IISExpressWindowsAuthentication>
     <IISExpressUseClassicPipelineMode />
     <UseGlobalApplicationHostFile />
     <NuGetPackageImportStamp>
@@ -147,8 +147,10 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\WmiConnector.cs" />
     <Compile Include="Models\StateList.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ViewModels\AppQueryViewModel.cs" />
     <Compile Include="ViewModels\AppRequestViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -190,10 +192,6 @@
     <Content Include="Views\CmApp\ViewRequest.cshtml" />
     <Content Include="Views\CmApp\Approve.cshtml" />
     <Content Include="Views\CmApp\Deny.cshtml" />
-    <Content Include="Views\CmApp\GetAll.cshtml" />
-    <Content Include="Views\CmApp\GetCanceled.cshtml" />
-    <Content Include="Views\CmApp\GetDenied.cshtml" />
-    <Content Include="Views\CmApp\GetApproved.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

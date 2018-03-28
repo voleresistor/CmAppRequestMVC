@@ -4,7 +4,28 @@
     ViewBag.Title = "Approve: " + @Model.Application + "(" + Model.UserName + ")";
 }
 
-<h2>Approve: @Model.Application (@Model.UserName)</h2>
+<h2>Approve Application Request</h2>
+
+<br />
+
+<table class="table">
+    <tr>
+        <th>Application</th>
+        <td>@Model.Application</td>
+    </tr>
+    <tr>
+        <th>Requested By</th>
+        <td>@Model.UserName</td>
+    </tr>
+    <tr>
+        <th>User Comments</th>
+        <td>@Model.Comments</td>
+    </tr>
+    <tr>
+        <th>Approving Admin</th>
+        <td>@Model.ModifyingUser</td>
+    </tr>
+</table>
 
 <br />
 

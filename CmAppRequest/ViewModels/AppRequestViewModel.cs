@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Security.Principal;
 
 namespace CmAppRequest.ViewModels
 {
@@ -11,9 +12,11 @@ namespace CmAppRequest.ViewModels
         public string UserName { get; set; }
         public string Comments { get; set; }
         public string NewComments { get; set; }
+        public string ActionResult { get; set; }
         public DateTime LastModifiedTime { get; set; }
 
-        public string ModifyingUser { get; set; }
+        //public WindowsIdentity ModifyingUser { get; set; }
+        public String ModifyingUser { get; set; }
 
         public AppRequestViewModel() { }
     }

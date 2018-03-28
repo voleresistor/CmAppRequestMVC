@@ -6,6 +6,15 @@
 
 <h2>View Request: @Model.RequestGuid</h2>
 
+<br />
+
+@if (!String.IsNullOrEmpty(Model.ActionResult))
+{
+    <p>@Model.ActionResult</p>
+
+    <br />
+}
+
 <table class="table">
     <tr>
         <th>Application</th>
@@ -38,4 +47,17 @@
     </tr>
 </table>
 
-<p><a href="/CmApp/Approve/?requestGuid=@Model.RequestGuid">Approve</a> | <a href="/CmApp/Deny/?requestGuid=@Model.RequestGuid">Deny</a></p>
+@if (Model.CurrentState == "Requested")
+{
+    <p><a href="/CmApp/Approve/?requestGuid=@Model.RequestGuid">Approve</a> | <a href="/CmApp/Deny/?requestGuid=@Model.RequestGuid">Deny</a></p>
+}
+
+@if (Model.CurrentState == "Denied")
+{
+    <p><a href="/CmApp/Approve/?requestGuid=@Model.RequestGuid">Approve</a></p>
+}
+
+@if (Model.CurrentState == "Approved")
+{
+    <p><a href="/CmApp/Deny/?requestGuid=@Model.RequestGuid">Deny</a></p>
+}

@@ -1,8 +1,6 @@
 ﻿using CmAppRequest.Models;
 using CmAppRequest.ViewModels;
-using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Management;
 using System.Web.Mvc;
 
@@ -10,136 +8,48 @@ namespace CmAppRequest.Controllers
 {
     public class CmAppController : Controller
     {
-        static string siteServer = "housccm03.dxpe.com";
-        static string nameSpace = "root\\SMS\\site_HOU";
-        // TODO: Add user based impersonation to allow for admins to be
-        // associated with approve/deny events they create
-        ManagementScope myScope = new ManagementScope("\\\\" + siteServer + "\\" + nameSpace,
-            new ConnectionOptions { Impersonation = System.Management.ImpersonationLevel.Impersonate });
+        // Create our WMI connector for this session
+        static WmiConnector wmiConnector = new WmiConnector();
 
-        // Create a viewmodel from the WMI query results
-        private AppRequestViewModel GetRequestData(ManagementObject m)
+        // Index displays all pending requests
+        public ActionResult Index(int searchType = 1)
         {
-            // Initialize and populate the ViewModel with the easy fields
-            AppRequestViewModel newRequest = new AppRequestViewModel
-            {
-                Application = m.GetPropertyValue("Application").ToString(),
-                Comments = m.GetPropertyValue("Comments").ToString(),
-                LastModifiedBy = m.GetPropertyValue("LastModifiedBy").ToString(),
-                RequestGuid = m.GetPropertyValue("RequestGuid").ToString(),
-                UserName = m.GetPropertyValue("User").ToString(),
-                ModifyingUser = System.Security.Principal.WindowsIdentity.GetCurrent().Name
-        };
-
-            // Get the two that require some extra processing
-            // Convert CurrentState from integer to string from enum
-            StateList stateList = (StateList)Convert.ToInt16(m.GetPropertyValue("CurrentState"));
-            newRequest.CurrentState = stateList.ToString();
-
-            // Convert datetime to a DateTime object using ParseExact
-            Char delim = '.';
-            string[] modTime = m.GetPropertyValue("LastModifiedDate").ToString().Split(delim);
-            CultureInfo provider = CultureInfo.InvariantCulture;
-            newRequest.LastModifiedTime = DateTime.ParseExact(modTime[0], "yyyyMMddHHmmss", provider);
+            /*
+            List<AppRequestViewModel> requests = new List<AppRequestViewModel>();
+            AppQueryViewModel resultsList = new AppQueryViewModel(searchType);
+            resultsList.Requests = requests;
+            return View(resultsList);
+            */
             
-            return (newRequest);
-        }
+            // Create query string from searchType int
+            string queryString = "SELECT * FROM SMS_UserApplicationRequest WHERE CurrentState = " + searchType.ToString();
+            ManagementObjectCollection results = wmiConnector.PerformWmiQuery(queryString);
 
-        // Perform a WMI Query
-        private ManagementObjectCollection PerformWmiQuery(string queryString)
-        {
-            myScope.Connect();
-            ObjectQuery query = new ObjectQuery(queryString);
-            ManagementObjectSearcher mySearcher = new ManagementObjectSearcher(myScope, query);
-
-            return (mySearcher.Get());
-        }
-
-        // GET: CmApp
-        public ActionResult Index()
-        {
-            ManagementObjectCollection results = this.PerformWmiQuery("SELECT * FROM SMS_UserApplicationRequest WHERE CurrentState = 1");
-
-            // List for parsed results
+            // Convert query results into a list of ViewModel objects
             List<AppRequestViewModel> requests = new List<AppRequestViewModel>();
-
             foreach (ManagementObject m in results)
             {
-                requests.Add(this.GetRequestData(m));
+                requests.Add(wmiConnector.GetRequestData(m));
             }
 
-            return View(requests);
+            AppQueryViewModel resultsList = new AppQueryViewModel(searchType);
+            resultsList.Requests = requests;
+
+            return View(resultsList);
         }
 
-        public ActionResult GetAll()
-        {
-            ManagementObjectCollection results = this.PerformWmiQuery("SELECT * FROM SMS_UserApplicationRequest");
-
-            // List for parsed results
-            List<AppRequestViewModel> requests = new List<AppRequestViewModel>();
-
-            foreach (ManagementObject m in results)
-            {
-                requests.Add(this.GetRequestData(m));
-            }
-
-            return View(requests);
-        }
-
-        public ActionResult GetDenied()
-        {
-            ManagementObjectCollection results = this.PerformWmiQuery("SELECT * FROM SMS_UserApplicationRequest WHERE CurrentState = 3");
-
-            // List for parsed results
-            List<AppRequestViewModel> requests = new List<AppRequestViewModel>();
-
-            foreach (ManagementObject m in results)
-            {
-                requests.Add(this.GetRequestData(m));
-            }
-
-            return View(requests);
-        }
-
-        public ActionResult GetCanceled()
-        {
-            ManagementObjectCollection results = this.PerformWmiQuery("SELECT * FROM SMS_UserApplicationRequest WHERE CurrentState = 2");
-
-            // List for parsed results
-            List<AppRequestViewModel> requests = new List<AppRequestViewModel>();
-
-            foreach (ManagementObject m in results)
-            {
-                requests.Add(this.GetRequestData(m));
-            }
-
-            return View(requests);
-        }
-
-        public ActionResult GetApproved()
-        {
-            ManagementObjectCollection results = this.PerformWmiQuery("SELECT * FROM SMS_UserApplicationRequest WHERE CurrentState = 4");
-
-            // List for parsed results
-            List<AppRequestViewModel> requests = new List<AppRequestViewModel>();
-
-            foreach (ManagementObject m in results)
-            {
-                requests.Add(this.GetRequestData(m));
-            }
-
-            return View(requests);
-        }
-
+        /* ViewRequest displays more detail about a
+         * particular request
+         */
         public ActionResult ViewRequest(string requestGuid)
         {
-            ManagementObjectCollection results = this.PerformWmiQuery("SELECT * FROM SMS_UserApplicationRequest WHERE RequestGUID=\"" + requestGuid + "\"");
+            ManagementObjectCollection results = wmiConnector.PerformWmiQuery("SELECT * FROM SMS_UserApplicationRequest WHERE RequestGUID=\"" + requestGuid + "\"");
 
             if (results.Count.Equals(1))
             {
                 foreach (ManagementObject m in results)
                 {
-                    return View(this.GetRequestData(m));
+                    return View(wmiConnector.GetRequestData(m));
                 }
             }
 
@@ -148,13 +58,14 @@ namespace CmAppRequest.Controllers
 
         public ActionResult Approve(string requestGuid)
         {
-            ManagementObjectCollection results = this.PerformWmiQuery("SELECT * FROM SMS_UserApplicationRequest WHERE RequestGUID=\"" + requestGuid + "\"");
+            ManagementObjectCollection results = wmiConnector.PerformWmiQuery("SELECT * FROM SMS_UserApplicationRequest WHERE RequestGUID=\"" + requestGuid + "\"");
 
+            // We know we should only get one result back from this query
             if (results.Count.Equals(1))
             {
                 foreach (ManagementObject m in results)
                 {
-                    return View(this.GetRequestData(m));
+                    return View(wmiConnector.GetRequestData(m));
                 }
             }
 
@@ -164,7 +75,7 @@ namespace CmAppRequest.Controllers
         [HttpPost]
         public ActionResult Approve(string requestGuid, string newComments, string modUser)
         {
-            ManagementObjectCollection results = this.PerformWmiQuery("SELECT * FROM SMS_UserApplicationRequest WHERE RequestGUID=\"" + requestGuid + "\"");
+            ManagementObjectCollection results = wmiConnector.PerformWmiQuery("SELECT * FROM SMS_UserApplicationRequest WHERE RequestGUID=\"" + requestGuid + "\"");
 
             if (results.Count.Equals(1))
             {
@@ -176,6 +87,7 @@ namespace CmAppRequest.Controllers
 
                     // Approve the request
                     ManagementBaseObject approval = m.InvokeMethod("Approve", inParams, null);
+
                 }
             }
 
@@ -184,13 +96,13 @@ namespace CmAppRequest.Controllers
 
         public ActionResult Deny(string requestGuid)
         {
-            ManagementObjectCollection results = this.PerformWmiQuery("SELECT * FROM SMS_UserApplicationRequest WHERE RequestGUID=\"" + requestGuid + "\"");
+            ManagementObjectCollection results = wmiConnector.PerformWmiQuery("SELECT * FROM SMS_UserApplicationRequest WHERE RequestGUID=\"" + requestGuid + "\"");
 
             if (results.Count.Equals(1))
             {
                 foreach (ManagementObject m in results)
                 {
-                    return View(this.GetRequestData(m));
+                    return View(wmiConnector.GetRequestData(m));
                 }
             }
 
@@ -200,7 +112,7 @@ namespace CmAppRequest.Controllers
         [HttpPost]
         public ActionResult Deny(string requestGuid, string newComments, string modUser)
         {
-            ManagementObjectCollection results = this.PerformWmiQuery("SELECT * FROM SMS_UserApplicationRequest WHERE RequestGUID=\"" + requestGuid + "\"");
+            ManagementObjectCollection results = wmiConnector.PerformWmiQuery("SELECT * FROM SMS_UserApplicationRequest WHERE RequestGUID=\"" + requestGuid + "\"");
 
             if (results.Count.Equals(1))
             {
@@ -212,10 +124,23 @@ namespace CmAppRequest.Controllers
 
                     // Approve the request
                     ManagementBaseObject approval = m.InvokeMethod("Deny", inParams, null);
+
+                    AppRequestViewModel result = wmiConnector.GetRequestData(m);
+
+                    // This doesn't currently appear to be functioning
+                    if (approval.GetPropertyValue("StatusCode").ToString() == 0.ToString())
+                    {
+                        result.ActionResult = result.Application + " was successfully denied for user " + result.UserName + " at " + result.LastModifiedTime;
+                    }
+                    else
+                    {
+                        result.ActionResult = result.Application + " was not denied for user " + result.UserName + " at " + result.LastModifiedTime;
+                    }
+                    return RedirectToAction("ViewRequest", "CmApp", result);
                 }
             }
 
-            // Just redirecting back to root no matter what happens
+            // Just redirecting back to root if the query goes wonky
             // TODO: Add some error catching/handling
             return Redirect("/CmApp");
         }
