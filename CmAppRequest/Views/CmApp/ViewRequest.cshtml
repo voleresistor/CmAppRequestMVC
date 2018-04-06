@@ -52,12 +52,7 @@
     <p><a href="/CmApp/Approve/?requestGuid=@Model.RequestGuid">Approve</a> | <a href="/CmApp/Deny/?requestGuid=@Model.RequestGuid">Deny</a></p>
 }
 
-@if (Model.CurrentState == "Denied")
-{
-    <p><a href="/CmApp/Approve/?requestGuid=@Model.RequestGuid">Approve</a></p>
-}
-
 @if (Model.CurrentState == "Approved")
 {
-    <p><a href="/CmApp/Deny/?requestGuid=@Model.RequestGuid">Deny</a></p>
+    <p><a href="/CmApp/Deny/?requestGuid=@Model.RequestGuid">Revoke Approval</a></p>
 }

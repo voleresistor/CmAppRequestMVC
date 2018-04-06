@@ -7,22 +7,23 @@ namespace CmAppRequest.ViewModels
     {
         public List<AppRequestViewModel> Requests { get; set; }
         public string PageTitle { get; set; }
+        public string RequestState { get; set; }
         public string UserFeedback { get; set; }
 
-        public AppQueryViewModel()
-        {
-            this.PageTitle = "Pending Requests";
-        }
+        public AppQueryViewModel() {}
 
         public AppQueryViewModel(int searchType)
         {
+            StateList stateList = (StateList)searchType;
             if (searchType != 1)
             {
-                StateList stateList = (StateList)searchType;
-                this.PageTitle = stateList.ToString() + " Requests";
+                this.RequestState = stateList.ToString();
+                this.PageTitle = RequestState + " Requests";
             }
             else
             {
+                // Need to be more specific with PageTitle here because grammar gets wacky
+                this.RequestState = stateList.ToString();
                 this.PageTitle = "Pending Requests";
             }
         }

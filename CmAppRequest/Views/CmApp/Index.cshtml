@@ -1,46 +1,41 @@
 ﻿@model CmAppRequest.ViewModels.AppQueryViewModel
 @{
-    ViewBag.Title = Model.PageTitle;
+    ViewBag.Title = Model.PageTitle + ": " + Model.Requests.Count;
 }
 
-<h2>@Model.PageTitle</h2>
+<h2>@Model.PageTitle: @Model.Requests.Count</h2>
 
 <br />
 
-<!--
-<script language="javascript">
-    $(document).ready(function () {
-        $('request_table').DataTable();
-    });
-</script>
--->
-
-@if (Model.Requests.Count > 0)
-{
-    <table class="table" id="request_table">
-        <thead>
-            <tr>
-                <th>Application</th>
-                <th>Requested By</th>
-                <th>Current State</th>
-                <th>Last Modified Time</th>
-            </tr>
-        </thead>
-
-        <tbody>
-            @foreach (var m in Model.Requests)
+<table class="table" id="request_table">
+    <thead>
+        <tr>
+            <th>Application</th>
+            <th>Requested By</th>
+            @if (Model.RequestState == "Denied")
             {
-                <tr>
-                    <td><a href="/CmApp/ViewRequest/?requestGuid=@m.RequestGuid">@m.Application</a></td>
-                    <td>@m.UserName</td>
-                    <td>@m.CurrentState</td>
-                    <td>@m.LastModifiedTime</td>
-                </tr>
+                <th>Denied By</th>
             }
-        </tbody>
-    </table>
-}
-else
-{
-    <p>No pending requests found.</p>
-}
+            else if (Model.RequestState == "Approved")
+            {
+                <th>Approved By</th>
+            }
+            <th>Last Modified Time</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var m in Model.Requests)
+        {
+            <tr>
+                <td><a href="/CmApp/ViewRequest/?requestGuid=@m.RequestGuid">@m.Application</a></td>
+                <td>@m.UserName</td>
+                @if (Model.RequestState == "Denied" || Model.RequestState == "Approved")
+                {
+                    <td>@m.LastModifiedBy</td>
+                }
+                <td>@m.LastModifiedTime</td>
+            </tr>
+        }
+    </tbody>
+</table>
